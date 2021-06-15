@@ -2,6 +2,15 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 
+let presetTime=1000;
+let hspeed =5;
+let up=1;
+
+
+
+function getRandomNumber(min,max){
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
 
 class Player{
     constructor(x,y,size,color){
@@ -86,29 +95,91 @@ class Player{
 
 }
 
-let player = new Player(150,400,50,"black");
+
+class AvoidBlock {
+    constructor(size,speed,dir){
+        this.x = canvas.width+150;
+        this.y = size;
+        this.dir=dir;
+        this.color = "rgb(168, 167, 167)";
+        this.slideSpeed = speed;
+        this.width=getRandomNumber(80,120)
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x,this.y,this.width,(this.dir)*450);
+    }
+
+    slide() {
+        this.draw();
+        this.x -= this.slideSpeed;
+    }
+    
+}
+
+
+
+
+let player = new Player(150,400,50,"darkblue");
+let hole =[new AvoidBlock(450,5,1)];
 
 function drawline(){
 
-    ctx.beginPath();
-    ctx.moveTo(0,150);
-    ctx.lineTo(600,150);
-    ctx.lineWidth = 1.9;
-    ctx.strokeStyle = "black";
-    ctx.stroke();
-    ctx.moveTo(0,450);
-    ctx.lineTo(600,450);
-    ctx.stroke();
+
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0,900,150);
+    ctx.fillRect(0,450,900,150);
+}
+
+
+function randomInterval(timeInterval) {
+    let returnTime = timeInterval;
+    if(Math.random() < 0.5){
+        returnTime += getRandomNumber(presetTime / 3, presetTime * 1.5);
+        
+    }else{
+        returnTime -= getRandomNumber(presetTime / 5, presetTime / 2);
+        
+    }
+    return returnTime;
+}
+
+
+function generateBlocks() {
+
+
+    let timeDelay = randomInterval(presetTime);
+    let x=getRandomNumber(0,1);
+    
+    if(x>0.5)
+    up=1;
+    else
+    up=-1;
+
+    if(up>0)
+    hole.push(new AvoidBlock(450, hspeed,up));
+    else
+    hole.push(new AvoidBlock(150, hspeed,up));
+
+    setTimeout(generateBlocks, timeDelay);
 }
 
 function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     drawline();
     player.draw();
+
+    hole.forEach(hole=>{
+        hole.slide();
+    });
     requestAnimationFrame(animate);
 }
 
 animate();
+setTimeout(() =>{
+    generateBlocks();
+},randomInterval(presetTime));
 
 addEventListener("keydown", e => {
     if(e.code === 'Space'){
