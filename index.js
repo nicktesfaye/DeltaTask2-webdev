@@ -13,39 +13,77 @@ class Player{
     this.jumpcounter=0;
     this.jumpheight=25;
     this.place=true;
+    this.spin = 0;
+    this.spinIncrement = 18;
 }
 
     draw(){
         this.jump();
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x,this.y,this.size,this.size);
+        if(this.shouldjump) this.counterRotation();
     }
 
     jump(){
         
         if(this.shouldjump){
+            
             this.jumpcounter++;
             
             if(this.place)
-            {if(this.jumpcounter<11 && this.y>150)
+
+            {
+            if(this.jumpcounter<11 && this.y>150)
                 this.y -=this.jumpheight;
+
+                this.rotation();
 
             if(this.jumpcounter>=11)
                 {this.shouldjump=false;
+                    this.counterRotation();
+                    this.spin = 0;
                     this.place=false;}
                 }
+
+
             else{
                 if(this.jumpcounter<11 && this.y<400)
                 this.y +=this.jumpheight;
 
+                this.rotation();
+
             if(this.jumpcounter>=11)
                 {this.shouldjump=false;
+                    this.counterRotation();
+                    this.spin = 0;
                     this.place=true;}
                 }
-            
+                
 
         }
     }
+
+    rotation() {
+        let offsetXPosition = this.x + (this.size / 2);
+        let offsetYPosition = this.y + (this.size / 2);
+        ctx.translate(offsetXPosition,offsetYPosition);
+        //Division is there to convert degrees into radians
+        ctx.rotate(this.spin * Math.PI / 180);
+        ctx.rotate(this.spinIncrement * Math.PI / 180 );
+        ctx.translate(-offsetXPosition,-offsetYPosition);
+        //4.5 because 90 / 20 (number of iterations in jump) is 4.5
+        this.spin += this.spinIncrement;
+    }
+
+    counterRotation() {
+        //This rotates the cube back to its origin so that it can be moved upwards properly
+        let offsetXPosition = this.x + (this.size / 2);
+        let offsetYPosition = this.y + (this.size / 2);
+        ctx.translate(offsetXPosition,offsetYPosition);
+        ctx.rotate(-this.spin * Math.PI / 180 );
+        ctx.translate(-offsetXPosition,-offsetYPosition);
+    }
+
 }
 
 let player = new Player(150,400,50,"black");
