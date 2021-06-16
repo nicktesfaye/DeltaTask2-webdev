@@ -1,15 +1,19 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let pop =document.querySelector('.pop');
+let pop2=document.querySelector('.userid')
 let tryagain=document.querySelector('.button');
+let submit=document.querySelector('.button_2');
 let scr=document.getElementById('002');
 let HS=document.getElementById('0001');
+let uid=document.getElementById('uid');
+
 
 let presetTime=1000;
 let hspeed =5;
 let up=1;
 let score=0;
-
+let username="";
 
 function getRandomNumber(min,max){
     return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -101,12 +105,11 @@ class Player{
 
 
 class AvoidBlock {
-    constructor(size,speed,dir){
+    constructor(size,dir){
         this.x = canvas.width+150;
         this.y = size;
         this.dir=dir;
         this.color = "rgb(168, 167, 167)";
-        this.slideSpeed = speed;
         this.width=10*getRandomNumber(8,12);
     }
 
@@ -117,7 +120,7 @@ class AvoidBlock {
 
     slide() {
         this.draw();
-        this.x -= this.slideSpeed;
+        this.x -= hspeed;
     }
     
 }
@@ -131,12 +134,12 @@ function startGame() {
     presetTime = 1000;
     up=1;
     scr.innerHTML ="<b>Score : </b>";
-    HS.innerHTML = "<b>High Score : </b>";
+
     animate();
 }
 
 let player = new Player(150,400,50,"darkblue");
-let hole =[new AvoidBlock(450,5,1)];
+let hole =[new AvoidBlock(450,1)];
 
 function squaresColliding(player,block){
     let s1 = player;
@@ -198,9 +201,9 @@ function generateBlocks() {
     up=-1;
 
     if(up>0)
-    hole.push(new AvoidBlock(450, hspeed,up));
+    hole.push(new AvoidBlock(450,up));
     else
-    hole.push(new AvoidBlock(150, hspeed,up));
+    hole.push(new AvoidBlock(150,up));
 
     setTimeout(generateBlocks, timeDelay);
 }
@@ -221,7 +224,14 @@ function animate(){
             highscr();
             pop.style.display="flex";}
         if(isPastBlock(player,hole))
-        score++;
+        {score++;
+            if(score%10===0 && score!=0)
+           { hspeed+=5;
+            if(presetTime>500)
+                presetTime-=250;
+            else
+            presetTime-=50;}
+        }
     });
 
     if((hole.x + hole.size) <= 0){
@@ -229,11 +239,11 @@ function animate(){
             hole.splice(index, 1);
         }, 0)}
 
-        
+  
  
 }
 
-animate();
+
 setTimeout(() =>{
     generateBlocks();
 },randomInterval(presetTime));
@@ -256,18 +266,33 @@ tryagain.addEventListener('click',function(){                                   
   });
 
 
+  submit.addEventListener('click',function(){                                    //buttonclick tryagain
+    username=document.getElementById("Username").value;
+    if(username==="")
+    alert("Please enter username");
+    else
+    {pop2.style.display="none";     
+    animate();}          
+  });
+
+
   function highscr()
 {
   var highscore = localStorage.getItem("hs");
 
 if(highscore !== null){
     if (score > highscore) {
-        localStorage.setItem("hs", String(score));      
+        localStorage.setItem("hs", String(score));
+        localStorage.setItem("name",username);      
     }
 }
 else{
     localStorage.setItem("hs", String(score));
+    localStorage.setItem("name",username);
 }
 
+HS.innerHTML = "<b>High Score : </b>";
+uid.innerHTML= "<b>Player : </b>";
 HS.innerHTML += localStorage.getItem("hs");
+uid.innerHTML +=localStorage.getItem("name");
 }
