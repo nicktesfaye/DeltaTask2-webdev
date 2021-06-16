@@ -1,11 +1,14 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
+let pop =document.querySelector('.pop');
+let tryagain=document.querySelector('.button');
+let scr=document.getElementById('002');
+let HS=document.getElementById('0001');
 
 let presetTime=1000;
 let hspeed =5;
 let up=1;
-
+let score=0;
 
 
 function getRandomNumber(min,max){
@@ -48,7 +51,8 @@ class Player{
                 this.rotation();
 
             if(this.jumpcounter>=11)
-                {this.shouldjump=false;
+                { 
+                    this.shouldjump=false;
                     this.counterRotation();
                     this.spin = 0;
                     this.place=false;}
@@ -103,7 +107,7 @@ class AvoidBlock {
         this.dir=dir;
         this.color = "rgb(168, 167, 167)";
         this.slideSpeed = speed;
-        this.width=getRandomNumber(80,120)
+        this.width=10*getRandomNumber(8,12);
     }
 
     draw() {
@@ -119,10 +123,46 @@ class AvoidBlock {
 }
 
 
-
+function startGame() {
+    player = new Player(150,400,50,"darkblue");
+    hole = [];
+    score = 0;
+    hspeed = 5;
+    presetTime = 1000;
+    up=1;
+    scr.innerHTML ="<b>Score : </b>";
+    HS.innerHTML = "<b>High Score : </b>";
+    animate();
+}
 
 let player = new Player(150,400,50,"darkblue");
 let hole =[new AvoidBlock(450,5,1)];
+
+function squaresColliding(player,block){
+    let s1 = player;
+    let s2 = block;
+
+    if(s2.x <= s1.x && s1.x <= (s2.x+s2.width) && s2.x<= (s1.x+s1.size) && (s1.x+s1.size) <= (s2.x+s2.width))
+    {   if(s2.y===450 && s1.y===400)
+            return false;
+
+        else if(s2.y===150 && s1.y===150)
+        return false;
+
+        else 
+        return true;
+    }
+
+    else 
+    return true;
+}
+
+function isPastBlock(player, block){
+    let s1 = player;
+    let s2 = block;
+    return(s1.x===s2.x+s2.width);
+    
+}
 
 function drawline(){
 
@@ -165,15 +205,32 @@ function generateBlocks() {
     setTimeout(generateBlocks, timeDelay);
 }
 
+let animationId=null;
 function animate(){
+    
+    animationId=   requestAnimationFrame(animate);
     ctx.clearRect(0,0,canvas.width,canvas.height);
     drawline();
     player.draw();
 
     hole.forEach(hole=>{
         hole.slide();
+        if(!squaresColliding(player, hole)){
+            cancelAnimationFrame(animationId);
+            scr.innerHTML += String(score);
+            highscr();
+            pop.style.display="flex";}
+        if(isPastBlock(player,hole))
+        score++;
     });
-    requestAnimationFrame(animate);
+
+    if((hole.x + hole.size) <= 0){
+        setTimeout(() => {
+            hole.splice(index, 1);
+        }, 0)}
+
+        
+ 
 }
 
 animate();
@@ -191,3 +248,26 @@ addEventListener("keydown", e => {
         }
     }
 });
+
+tryagain.addEventListener('click',function(){                                    //buttonclick tryagain
+ 
+    pop.style.display='none';
+           startGame();                 
+  });
+
+
+  function highscr()
+{
+  var highscore = localStorage.getItem("highscore");
+
+if(highscore !== null){
+    if (score > highscore) {
+        localStorage.setItem("highscore", String(score));      
+    }
+}
+else{
+    localStorage.setItem("highscore", String(score));
+}
+
+HS.innerHTML += localStorage.getItem("highscore");
+}
