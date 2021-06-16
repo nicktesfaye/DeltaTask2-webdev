@@ -258,16 +258,16 @@ tryagain.addEventListener('click',function(){                                   
 
   function highscr()
 {
-  var highscore = localStorage.getItem("highscore");
+  var highscore = localStorage.getItem("highscore2");
 
 if(highscore !== null){
     if (score > highscore) {
-        localStorage.setItem("highscore", String(score));      
+        localStorage.setItem("highscore2", String(score));      
     }
 }
 else{
-    localStorage.setItem("highscore", String(score));
+    localStorage.setItem("highscore2", String(score));
 }
 
-HS.innerHTML += localStorage.getItem("highscore");
+HS.innerHTML += localStorage.getItem("highscore2");
 }
