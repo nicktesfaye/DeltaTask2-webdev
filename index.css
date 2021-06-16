@@ -125,3 +125,63 @@ body {
     opacity: 0;
   }
 }
+
+.userid {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-content {
+  width: 500px;
+  height: 250px;
+  border-radius: 15px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.button_2 {
+  background-color: blue;
+  border: 2px solid white;
+  border-radius: 30px;
+  text-decoration: none;
+  padding: 10px 28px;
+  color: white;
+  margin-top: 10px;
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  transform: translatex(-50%);
+}
+
+.button_2:hover {
+  background-color: white;
+  color: blue;
+  border: 2px solid blue;
+}
+
+.text_1 {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: black;
+}
+
+.name {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 400px;
+  transform: translateX(-50%);
+  font-size: 35px;
+  color: black;
+}
