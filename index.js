@@ -14,6 +14,7 @@ let hspeed =5;
 let up=1;
 let score=0;
 let username="";
+let canflip =false;
 
 function getRandomNumber(min,max){
     return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -35,9 +36,36 @@ class Player{
 
     draw(){
         this.jump();
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x,this.y,this.size,this.size);
-        if(this.shouldjump) this.counterRotation();
+        //var grd = ctx.createLinearGradient(0, 0, 350, 0);
+       // grd.addColorStop(0, this.color);
+       // grd.addColorStop(1, "white");
+        //ctx.fillStyle = grd;
+        //ctx.fillRect(this.x,this.y,this.size,this.size);
+        if(this.y===400)
+    {ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x, this.y+this.size);
+    ctx.lineTo(this.x+this.size,this.y+this.size);
+    ctx.closePath();}
+
+    else
+        {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x+this.size, this.y);
+            ctx.lineTo(this.x,this.y+this.size);
+            ctx.closePath();   
+        }
+
+    // the fill color
+    ctx.fillStyle = this.color;
+    ctx.fill();
+
+        if(canflip)
+        {this.flip();
+            canflip=false;}
+        if(this.shouldjump) 
+            this.counterRotation();
     }
 
     jump(){
@@ -54,12 +82,17 @@ class Player{
 
                 this.rotation();
 
+                if(this.jumpcounter===6)
+                {canflip=true;
+                this.flip();}
+
             if(this.jumpcounter>=11)
                 { 
                     this.shouldjump=false;
                     this.counterRotation();
                     this.spin = 0;
-                    this.place=false;}
+                    this.place=false;
+}
                 }
 
 
@@ -68,6 +101,10 @@ class Player{
                 this.y +=this.jumpheight;
 
                 this.rotation();
+
+                if(this.jumpcounter===6)
+                {canflip=true;
+                this.flip();}
 
             if(this.jumpcounter>=11)
                 {this.shouldjump=false;
@@ -98,6 +135,15 @@ class Player{
         let offsetYPosition = this.y + (this.size / 2);
         ctx.translate(offsetXPosition,offsetYPosition);
         ctx.rotate(-this.spin * Math.PI / 180 );
+        ctx.translate(-offsetXPosition,-offsetYPosition);
+    }
+
+    flip()
+    {
+        let offsetXPosition = this.x + (this.size / 2);
+        let offsetYPosition = this.y + (this.size / 2);
+        ctx.translate(offsetXPosition,offsetYPosition);
+        ctx.scale(-1,1);
         ctx.translate(-offsetXPosition,-offsetYPosition);
     }
 
@@ -220,6 +266,7 @@ function animate(){
         hole.slide();
         if(!squaresColliding(player, hole)){
             cancelAnimationFrame(animationId);
+            scr.innerHTML ="<b>Score : </b>";
             scr.innerHTML += String(score);
             highscr();
             pop.style.display="flex";}
