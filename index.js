@@ -15,6 +15,8 @@ let up=1;
 let score=0;
 let username="";
 let canflip =false;
+let orb=true;
+let temp=0;
 
 function getRandomNumber(min,max){
     return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -172,20 +174,52 @@ class AvoidBlock {
 }
 
 
+class obstracle{
+    constructor(){
+        this.x=canvas.width+200;
+        this.y =300;
+        this.color="red";
+        this.radius=20;
+        this.dir=1;
+    }
+
+    draw(){
+        ctx.beginPath();
+        ctx.fillStyle=this.color;
+        ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    slide() {
+        this.draw();
+        this.x-=hspeed;
+        this.y+=this.dir*5;
+        if(this.y===430)
+        this.dir=-1;
+        if(this.y===170)
+        this.dir=1;
+    }
+}
+
 function startGame() {
     player = new Player(150,400,50,"darkblue");
     hole = [];
+    obs=[];
     score = 0;
     hspeed = 5;
     presetTime = 1000;
     up=1;
+    temp=0;
     scr.innerHTML ="<b>Score : </b>";
-
+    orb=true;
     animate();
 }
 
 let player = new Player(150,400,50,"darkblue");
 let hole =[new AvoidBlock(450,1)];
+let obs =[new obstracle()];
+obs.splice(0,1);
 
 function squaresColliding(player,block){
     let s1 = player;
@@ -204,6 +238,23 @@ function squaresColliding(player,block){
 
     else 
     return true;
+}
+
+function orbcollide(player,orb)
+{
+
+
+    if(orb.x-orb.radius<=player.x+player.size && orb.x+orb.radius>=player.x+player.size && orb.y-orb.radius<=player.y+player.size && orb.y+orb.size>=player.y+player.size)
+    return true;
+
+    else if (orb.x-orb.radius<=player.x && orb.x+orb.radius>=player.x && orb.y-orb.radius<=player.y+player.size && orb.y+orb.size>=player.y+player.size)
+    return true;
+
+    else if(orb.x-orb.radius<=player.x && orb.x+orb.radius>=player.x && orb.y-orb.radius<=player.y && orb.y+orb.size>=player.y)
+    return true;
+
+    else
+    return false;
 }
 
 function isPastBlock(player, block){
@@ -254,6 +305,13 @@ function generateBlocks() {
     setTimeout(generateBlocks, timeDelay);
 }
 
+function generateobs() {
+    
+    let timeDelay = randomInterval(presetTime);
+    obs.push(new obstracle());
+    setTimeout(generateobs, timeDelay);
+}
+
 let animationId=null;
 function animate(){
     
@@ -261,6 +319,27 @@ function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     drawline();
     player.draw();
+    
+    
+    if(score>19 && score%10==0 && orb==true)
+    {generateobs();
+        orb=false;
+        temp=score;
+    }
+    if(score>temp)
+    orb=true;
+
+    obs.forEach(obs=>{
+        obs.slide();
+        if(orbcollide(player,obs))
+        {
+            cancelAnimationFrame(animationId);
+            scr.innerHTML ="<b>Score : </b>";
+            scr.innerHTML += String(score);
+            highscr();
+            pop.style.display="flex";
+        }
+    });
 
     hole.forEach(hole=>{
         hole.slide();
@@ -281,12 +360,17 @@ function animate(){
         }
     });
 
-    if((hole.x + hole.size) <= 0){
+    if((hole.x + hole.size) <=0){
         setTimeout(() => {
-            hole.splice(index, 1);
+            hole.splice(index, 1);       
         }, 0)}
 
-  
+        if(obs.x<=0)
+        {
+            setTimeout(() => {
+                obs.splice(index, 1);
+            }, 0)
+        }
  
 }
 
@@ -294,6 +378,7 @@ function animate(){
 setTimeout(() =>{
     generateBlocks();
 },randomInterval(presetTime));
+
 
 addEventListener("keydown", e => {
     if(e.code === 'Space'){
